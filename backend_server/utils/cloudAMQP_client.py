@@ -1,19 +1,21 @@
 import json
 import pika
 
-class CloudAMQPClient: 
+class CloudAMQPClient:
   def __init__(self, cloud_amqp_url, queue_name):
     self.cloud_amqp_url = cloud_amqp_url
     self.queue_name = queue_name
     self.params = pika.URLParameters(cloud_amqp_url)
     self.params.socket_timeout = 3
-    self.connection = pika.BblockingConnection(self.params)
+    self.connection = pika.BlockingConnection(self.params)
     self.channel = self.connection.channel()
     self.channel.queue_declare(queue=queue_name)
 
-  # send a message
+  #send a message
   def sendMessage(self, message):
-    self.channel.basic_publish(excahnge='', routning_key=self.queue_name, body=json.dums(message))
+    self.channel.basic_publish(exchange='',
+                                routing_key=self.queue_name,
+                                body=json.dumps(message))
     print "[X] Sent messages to %s: %s" % (self.queue_name, message)
 
   # get a message
@@ -27,6 +29,7 @@ class CloudAMQPClient:
       print "No message returned"
       return None
 
-  # sleep
+    # sleep
   def sleep(self, seconds):
     self.connection.sleep(seconds)
+
